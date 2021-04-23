@@ -6,7 +6,9 @@ from torchvision.datasets import CIFAR10
 from torch.utils.data.dataloader import DataLoader
 import torch.nn as nn
 import torch.nn.functional as F
+
 device = torch.device('cuda')
+# sets the default device as cuda so it will train on the GPU
 batch_size = 4
 # the amount of images to use per batch
 
@@ -30,3 +32,10 @@ class ConvolutionalNeuralNetwork(nn.Module):
     def __init__(self):
         super().__init__()
         # inherits from the super
+        self.conv_layer1 = nn.Conv2d(in_channels=3, out_channels=6, kernel_size=(3, 3))
+        # defining our first Convolutional layer
+        # in_channels = how many layers does starting image have. We're RGB so its 3
+        # out_channels = how many output dimensions do we want
+        # kernel_size = the dimensions of the kernal we want to use
+        self.conv_layer2 = nn.Conv2d(in_channels=3, out_channels=6, kernel_size=(3, 3))
+        # defining our second Convolutional layer with the same channels as the first one
