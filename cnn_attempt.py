@@ -5,30 +5,30 @@ import matplotlib.pyplot as plt
 from torchvision.datasets import CIFAR10
 from torch.utils.data.dataloader import DataLoader
 import torch.nn as nn
-
+from datetime import datetime
 
 # contains all the classes in used in CIFAR10
 class ConvolutionalNeuralNetwork(nn.Module):
     def __init__(self):
         super().__init__()
         # inherits from the super
-        self.conv_layer1 = nn.Conv2d(in_channels=3, out_channels=16, kernel_size=(5, 5))
+        self.conv_layer1 = nn.Conv2d(in_channels=3, out_channels=32, kernel_size=(5, 5))
         # defining our first Convolutional layer
         # in_channels = how many layers does starting image have. We're RGB so its 3
         # out_channels = how many output dimensions do we want
         # kernel_size = the dimensions of the kernel we want to use
         self.pooling = nn.MaxPool2d(kernel_size=(2, 2), stride=2)
         # pooling layer, kernel size is 2x2 and the stride is 2 so the kernel won't look at the same pixels twice
-        self.conv_layer2 = nn.Conv2d(in_channels=16, out_channels=32, kernel_size=(5, 5))
+        self.conv_layer2 = nn.Conv2d(in_channels=32, out_channels=64, kernel_size=(5, 5))
         # defining our second Convolutional layer with the input channels the same as the first layers output so they
         # can feed from one into the other.
         self.Relu = nn.ReLU()
         # carries out Relu
-        self.normal_layer1 = nn.BatchNorm2d(16)
+        self.normal_layer1 = nn.BatchNorm2d(32)
         # carries out Zero-centre and normalizes the output of the Convolutional layer before activation
-        self.normal_layer2 = nn.BatchNorm2d(32)
+        self.normal_layer2 = nn.BatchNorm2d(64)
         # carries out Zero-centre and normalizes the output of the Convolutional layer before activation
-        self.linear_layer = nn.Linear(800, len(classes))
+        self.linear_layer = nn.Linear(1600, len(classes))
         # output of linear layer is each class
 
     def forward(self, output):
@@ -73,13 +73,17 @@ if __name__ == '__main__':
     learning_rate = 0.001
     ConvolutionalNeuralNetwork = ConvolutionalNeuralNetwork()
     ConvolutionalNeuralNetwork.cuda()
+    print(torch.cuda.get_device_name(torch.cuda.current_device()))
+    print(torch.cuda.memory_allocated())
     # initializing the Convolutional Neural Network
     optimizer = torch.optim.SGD(ConvolutionalNeuralNetwork.parameters(), lr=learning_rate, momentum=0.9)
     # optimizer using stochastic gradient decent
 
 
     #train the dataset
+
     for loops in range(20):  # how many loops over the data you want to do
+        print(datetime.now().strftime("%H:%M:%S"))
         for training_data in training_loader:
             inputs, labels = training_data
             inputs, labels = inputs.cuda(), labels.cuda()
@@ -98,7 +102,7 @@ if __name__ == '__main__':
             # generates the gradients (back propagation)
             optimizer.step()
             # applies stochastic gradient decent, so only a small sample is used to save time
-
+    print(torch.cuda.memory_allocated())
     save_location = './cifar_net.pth'
     torch.save(ConvolutionalNeuralNetwork.state_dict(), save_location)
 
