@@ -12,19 +12,20 @@ device = torch.device('cuda')
 batch_size = 4
 # the amount of images to use per batch
 
-train_set = CIFAR10(root='./data', train=True, download=True, transform=torchvision.transforms.ToTensor)
+training_set = CIFAR10(root='./data', train=True, download=True, transform=torchvision.transforms.ToTensor)
 # train_set contains the CIFAR10 training images, 50000 images, these images have been transformed into tensors
-train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True, num_workers=2)
+# it will download the dataset if needed
+training_loader = DataLoader(training_set, batch_size=batch_size, shuffle=True, num_workers=2)
 # train loader contains groups of training images randomly shuffled in groups of 4 (the batch size)
 
-test_set = CIFAR10(root='./data', train=False, download=True, transform=torchvision.transforms.ToTensor)
+testing_set = CIFAR10(root='./data', train=False, download=True, transform=torchvision.transforms.ToTensor)
 # train_set contains the CIFAR10 testing images, 10000 images, these images have been transformed into tensors
-test_loader = DataLoader(test_set, batch_size=batch_size, shuffle=False, num_workers=2)
+testing_loader = DataLoader(testing_set, batch_size=batch_size, shuffle=False, num_workers=2)
 # test loader contains groups of testing images randomly shuffled in groups of 4 (the batch size)
 
 
-classes = train_set.classes
-print(len(train_set))
+classes = training_set.classes
+print(len(training_set))
 
 
 # contains all the classes in used in CIFAR10
@@ -36,6 +37,11 @@ class ConvolutionalNeuralNetwork(nn.Module):
         # defining our first Convolutional layer
         # in_channels = how many layers does starting image have. We're RGB so its 3
         # out_channels = how many output dimensions do we want
-        # kernel_size = the dimensions of the kernal we want to use
-        self.conv_layer2 = nn.Conv2d(in_channels=3, out_channels=6, kernel_size=(3, 3))
-        # defining our second Convolutional layer with the same channels as the first one
+        # kernel_size = the dimensions of the kernel we want to use
+
+        self.pooling = nn.MaxPool2d(kernel_size=(2, 2), stride=2)
+        # pooling layer, kernel size is 2x2 and the stride is 2 so the kernel won't look at the same pixels twice
+
+        self.conv_layer2 = nn.Conv2d(in_channels=6, out_channels=12, kernel_size=(3, 3))
+        # defining our second Convolutional layer with the input channels the same as the first layers output so they
+        # can feed from one into the other.
