@@ -72,19 +72,24 @@ if __name__ == '__main__':
     loss_function = nn.CrossEntropyLoss()
     learning_rate = 0.001
     ConvolutionalNeuralNetwork = ConvolutionalNeuralNetwork()
+    ConvolutionalNeuralNetwork.cuda()
+    # initializing the Convolutional Neural Network
     optimizer = torch.optim.SGD(ConvolutionalNeuralNetwork.parameters(), lr=learning_rate, momentum=0.9)
-
     # optimizer using stochastic gradient decent
 
-    for loops in range(2):  # how many loops over the data you want to do
+
+    #train the dataset
+    for loops in range(20):  # how many loops over the data you want to do
         for training_data in training_loader:
             inputs, labels = training_data
+            inputs, labels = inputs.cuda(), labels.cuda()
             # gets input values and labels
 
             optimizer.zero_grad()
             # zeros the gradients
 
             outputs = ConvolutionalNeuralNetwork(inputs)
+
             # generates outputs
 
             loss = loss_function(outputs, labels)
@@ -93,4 +98,21 @@ if __name__ == '__main__':
             # generates the gradients (back propagation)
             optimizer.step()
             # applies stochastic gradient decent, so only a small sample is used to save time
-        print(loss.item())
+
+    save_location = './cifar_net.pth'
+    torch.save(ConvolutionalNeuralNetwork.state_dict(), save_location)
+
+    correct = 0
+    total = 0
+    with torch.no_grad():
+        for data in testing_loader:
+            inputs, labels = data
+            inputs, labels = inputs.cuda(), labels.cuda()
+
+            outputs = ConvolutionalNeuralNetwork(inputs)
+            _, predicted = torch.max(outputs.data, 1)
+            total += labels.size(0)
+            correct += (predicted == labels).sum().item()
+
+    print('Accuracy of the network on the 10000 test images: %d %%' % (
+            100 * correct / total))
